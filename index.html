@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GrowthBook Test Page</title>
+
+  <style>
+    /* Default light mode styles */
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    body.dark-mode {
+      background-color: #1a1a2e;
+      color: #eeeeee;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+  </style>
+
+  <!-- DevMode config MUST come before the SDK script -->
+  <script>
+  window.growthbook_config = window.growthbook_config || {};
+  window.growthbook_config.enableDevMode = true;
+  window.growthbook_config.attributes = {
+    country: "PH",
+    loggedIn: true,
+  };
+  </script>
+
+  <!-- GrowthBook SDK -->
+  <script async
+    data-client-key="sdk-dOKJbBGgKmiWVq9i"
+    src="https://cdn.jsdelivr.net/npm/@growthbook/growthbook/dist/bundles/auto.min.js"
+  ></script>
+
+  <!-- Feature flag logic -->
+  <script>
+  window.growthbook_queue = window.growthbook_queue || [];
+  window.growthbook_queue.push(function(gb) {
+
+    // Function to apply features - we call this on load AND on changes
+    function applyFeatures() {
+      var isDarkMode = gb.isOn("dark-mode");
+      
+      if (isDarkMode) {
+        document.body.classList.add("dark-mode");
+      } else {
+        document.body.classList.remove("dark-mode");
+      }
+
+      // Show the current flag status on the page
+      var statusEl = document.getElementById("flag-status");
+      if (statusEl) {
+        statusEl.innerHTML = 
+          "<strong>dark-mode flag:</strong> " + (isDarkMode ? "ON" : "OFF") +
+          "<br><strong>SDK connected:</strong> Yes" +
+          "<br><strong>Last checked:</strong> " + new Date().toLocaleTimeString();
+      }
+    }
+
+    // Apply features immediately on load
+    applyFeatures();
+
+    // ALSO apply when features change (e.g., DevTools override or streaming update)
+    gb.setRenderer(function() {
+      applyFeatures();
+    });
+  });
+  </script>
+</head>
+<body>
+  <h1 id="heading">GrowthBook Feature Flag Demo</h1>
+  <p>This page demonstrates feature flags controlled from the GrowthBook dashboard.</p>
+  
+  <div class="status" id="flag-status">
+    Loading GrowthBook SDK...
+  </div>
+
+  <h2>What to test:</h2>
+  <p>1. Toggle dark-mode flag in the GrowthBook dashboard (publish the change!)</p>
+  <p>2. Use the DevTools extension to override the flag value in real-time</p>
+  <p>3. Try adding a Percentage Rollout rule to serve dark mode to 50% of users</p>
+</body>
+</html>
